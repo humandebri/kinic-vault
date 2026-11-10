@@ -1,24 +1,33 @@
 # Kinic Vault
 
-個人用の暗号化メモ・認証情報・文書保管庫。Rust canister、SQLite/VFS、vetKeys、WebAuthn、Reactで構成する。
+Kinic Vaultは、メモ・認証情報・添付ファイルをブラウザで暗号化して保存する個人用の保管庫です。Internet Computerのcanisterに暗号文と版履歴を保存します。保管庫の解除にはvetKeysとWebAuthnパスキーを使います。
 
-現在は**合成データ用のローカル実装**。本番への配布、実秘密の保存、本番vetKeysの実測、独立セキュリティレビューは行っていない。
+**合成データで動かすローカル開発版です。** 実際のパスワードや機密文書を入れずにお試しください。本番のvetKeys計測と独立セキュリティレビューは未実施です。
 
-## ローカル起動
+## ローカルで試す
 
-Node 24以上、pnpm 11.25、Rustとwasm32-unknown-unknown target、Candid生成用のdidcが必要。
+Node.js 24、pnpm 11.25.0、Rust（検証版1.97.1）と、WebAuthnに対応するブラウザを用意します。
 
 ```sh
+git clone https://github.com/humandebri/kinic-vault.git
+cd kinic-vault
+rustup target add wasm32-unknown-unknown
 pnpm install --frozen-lockfile
-cargo fetch --locked
 pnpm dev:local
 ```
 
-[localhost:5173](http://localhost:5173)を開く。起動ごとに独立したPocketIC環境を作り、合成Identityを利用する。パスキー登録・解除にはブラウザのWebAuthnを使う。終了はCtrl+C。ローカル環境のデータは永続運用用ではない。
+1. ブラウザで [localhost:5173](http://localhost:5173) を開き、合成Identityでログインします。
+2. 保管庫を作り、表示された復旧用秘密を控え、パスキーを登録します。
+3. 合成データで文書の保存、ロックと解除、暗号化バックアップを試します。
+
+終了は Ctrl+C です。起動ごとに新しいPocketIC環境を作るため、次回も残したい試験データは終了前に暗号化バックアップを保存してください。
+
+### ローカルInternet Identityで試す
 
 実際のローカルInternet Identityで試す場合は、自分で用意した**ローカルIIの公開URLとそのorigin用principal**を使う。WikiのIdentityや設定は流用しない。
 
 ```sh
+pnpm build:canister
 VITE_II_URL='http://<local-II-host>/authorize' node tools/local.mjs --owner '<local-owner-principal>'
 ```
 
@@ -31,9 +40,21 @@ VITE_II_URL='http://<local-II-host>/authorize' node tools/local.mjs --owner '<lo
 - ローカル検索、安全なMarkdown表示、添付の復号ダウンロード、自動ロックと古い非同期結果の破棄。
 - snapshot固定の暗号化バックアップ、保存確認状態、独立オフライン復旧、別canister・別ownerへのインポート。
 
-添付10 MiB、メモ・認証情報256 KiB、保管庫の現行データ100 MiB、履歴・予約等込みの所有者/全体各200 MiB。保管庫3個、現行版込み履歴10版、保管庫ごとの同時upload 1件。容量不足では既存データを保持して更新を拒否する。PDFはダウンロード専用。
+| 対象 | 上限 |
+| --- | ---: |
+| 添付1ファイル | 10 MiB |
+| メモ・認証情報1件 | 256 KiB |
+| 保管庫の現行データ | 100 MiB |
+| 所有者・canister全体（履歴と予約を含む） | 各200 MiB |
+| 保管庫 | 3個 |
+| 履歴 | 現行版を含めて10版 |
+| 保管庫ごとの同時アップロード | 1件 |
+
+容量不足の更新は既存データを保持して拒否します。PDFは復号ダウンロードで開けます。
 
 ## 検証
+
+ブラウザ試験の前に `pnpm exec playwright install chromium` を実行します。Candidと生成済みバインディングの照合には `didc` が必要です。
 
 ```sh
 pnpm typecheck
@@ -65,4 +86,6 @@ node apps/recovery/src/main.mjs --backup /path/to/backup.kvault --output /path/t
 - [暗号形式](docs/crypto-format.md) / [APIと状態遷移](docs/api.md)
 - [復旧手順](docs/recovery.md) / [費用と一次資料](docs/costs-and-sources.md)
 
-既存Wikiのコードは出所付きで保存基盤のみ参照・移植し、データ・設定・認証情報は複製していない。共有・自動入力・AI連携・オフライン常用は対象外。配信コードの更新者とcanister controllerは信頼対象に残る。
+## ライセンス
+
+同梱する依存コードのライセンスと出所は各ディレクトリに記載しています。Kinic Vault本体のライセンスは未指定です。 [SQLite互換層](crates/kinic-sqlite-compat/NOTICE.md) · [passkey-auth](vendor/passkey-auth/NOTICE.md)

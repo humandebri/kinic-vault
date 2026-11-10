@@ -4,7 +4,7 @@
 
 ## 1. 参照対象と確認範囲
 
-参照checkout：`/Volumes/KINGSTON/KINIC/kinic-wiki`（このrepoの兄弟）。参照commit：`4f15ac1135a0266d303ccf830f3ad6ed93f9986d`。調査時のtracked変更はなし。ローカルmainはorigin/mainより10コミット後方であり、最新upstreamを調べた資料ではない。
+参照checkout：`ICME-Lab/kinic-wiki` のローカルcheckout。参照commit：`4f15ac1135a0266d303ccf830f3ad6ed93f9986d`。調査時のtracked変更はなし。ローカルmainはorigin/mainより10コミット後方であり、最新upstreamを調べた資料ではない。
 
 この資料はローカルコード・manifest・lockfileの静的調査。Vaultへの移植・build・PocketICの再実行は未実施。依存互換性や性能の実証はTask 1で行う。元repoが手元にない場合も下記の固定commit/revと構成を使って参照を復元し、未固定の最新版へ置換しない。
 
@@ -22,25 +22,25 @@
 | upgrade | post_upgradeでSQLite初期化→DB再接続→migration→runtime再生成 |
 | 試験 | native Rustテストと、実Wasmを動かす@dfinity/pic/PocketICを併用。既存JSはnode:test |
 
-根拠：[Cargo.toml](../../kinic-wiki/Cargo.toml)、[Cargo.lock](../../kinic-wiki/Cargo.lock)、[canister依存](../../kinic-wiki/crates/vfs_canister/Cargo.toml)、[runtime依存](../../kinic-wiki/crates/vfs_runtime/Cargo.toml)、[compat依存](../../kinic-wiki/crates/kinic_sqlite_compat/Cargo.toml)。
+根拠：[Cargo.toml](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/Cargo.toml)、[Cargo.lock](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/Cargo.lock)、[canister依存](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/vfs_canister/Cargo.toml)、[runtime依存](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/vfs_runtime/Cargo.toml)、[compat依存](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/kinic_sqlite_compat/Cargo.toml)。
 
 ## 3. 流用マップ
 
 | 元ファイル | 読む・流用する内容 | Vaultでの受け先 |
 | --- | --- | --- |
-| [vfs_canister/src/lib.rs](../../kinic-wiki/crates/vfs_canister/src/lib.rs) | MEMORY_MANAGER、init/post_upgrade、initialize_sqlite_storage、database_handle | vault-canisterのstorage初期化とupgrade hook。Wikiの公開API全体はコピーしない |
-| [kinic_sqlite_compat/src/lib.rs](../../kinic-wiki/crates/kinic_sqlite_compat/src/lib.rs) | cfg分岐、Connection/Transaction/params/row型の差の吸収 | 出所とライセンスを記録して必要範囲を移植し、native/wasmで同じstoreロジックを試験 |
-| [vfs_runtime/src/lib.rs](../../kinic-wiki/crates/vfs_runtime/src/lib.rs) | service/store分離、wasmのDb/DbHandleとnative接続の境界 | Vault runtimeとSQL storeの責務分離 |
-| [vfs_runtime/src/index_schema.rs](../../kinic-wiki/crates/vfs_runtime/src/index_schema.rs) | 初期化とupgradeで異なるmigration入口、同期transaction | Vault独自schema/migrationとupgrade試験 |
-| [vfs_store/src/schema.rs](../../kinic-wiki/crates/vfs_store/src/schema.rs) | migration管理、静的SQL、schema検査の構成 | 暗号文専用のtables/indexesとバージョン管理 |
-| [vfs_store/src/sqlite.rs](../../kinic-wiki/crates/vfs_store/src/sqlite.rs) | compatの再exportでSQL呼出しを共通化 | vault-storeのSQL adapter |
-| [vfs_store/src/fs_store/revisions.rs](../../kinic-wiki/crates/vfs_store/src/fs_store/revisions.rs) | revisionと競合処理を読む参考 | 暗号化revision/expected_revisionの独自実装。平文モデルは移植しない |
-| [PocketIC package.json](../../kinic-wiki/pocketic-tests/package.json) | --lockedでWasmをbuildし、実Wasmに対して試験する構成 | Vault独自のbuild/testスクリプト |
-| [learning-revisions.test.mjs](../../kinic-wiki/pocketic-tests/integration/learning-revisions.test.mjs) | owner/outsider、revision identity、upgradeのfixture | Vaultのowner/暗号文/revision/upgradeテスト |
-| [ic-sqlite-vfs-probe.test.mjs](../../kinic-wiki/pocketic-tests/tests/ic-sqlite-vfs-probe.test.mjs) | VFSのcanister実行検証 | 初期ストレージ実証 |
-| [ic_sqlite_vfs_probe/src/lib.rs](../../kinic-wiki/crates/ic_sqlite_vfs_probe/src/lib.rs) | DbHandle probeとnative実行時の注意 | nativeだけで永続性を保証しないための検証参考 |
+| [vfs_canister/src/lib.rs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/vfs_canister/src/lib.rs) | MEMORY_MANAGER、init/post_upgrade、initialize_sqlite_storage、database_handle | vault-canisterのstorage初期化とupgrade hook。Wikiの公開API全体はコピーしない |
+| [kinic_sqlite_compat/src/lib.rs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/kinic_sqlite_compat/src/lib.rs) | cfg分岐、Connection/Transaction/params/row型の差の吸収 | 出所とライセンスを記録して必要範囲を移植し、native/wasmで同じstoreロジックを試験 |
+| [vfs_runtime/src/lib.rs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/vfs_runtime/src/lib.rs) | service/store分離、wasmのDb/DbHandleとnative接続の境界 | Vault runtimeとSQL storeの責務分離 |
+| [vfs_runtime/src/index_schema.rs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/vfs_runtime/src/index_schema.rs) | 初期化とupgradeで異なるmigration入口、同期transaction | Vault独自schema/migrationとupgrade試験 |
+| [vfs_store/src/schema.rs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/vfs_store/src/schema.rs) | migration管理、静的SQL、schema検査の構成 | 暗号文専用のtables/indexesとバージョン管理 |
+| [vfs_store/src/sqlite.rs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/vfs_store/src/sqlite.rs) | compatの再exportでSQL呼出しを共通化 | vault-storeのSQL adapter |
+| [vfs_store/src/fs_store/revisions.rs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/vfs_store/src/fs_store/revisions.rs) | revisionと競合処理を読む参考 | 暗号化revision/expected_revisionの独自実装。平文モデルは移植しない |
+| [PocketIC package.json](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/pocketic-tests/package.json) | --lockedでWasmをbuildし、実Wasmに対して試験する構成 | Vault独自のbuild/testスクリプト |
+| [learning-revisions.test.mjs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/pocketic-tests/integration/learning-revisions.test.mjs) | owner/outsider、revision identity、upgradeのfixture | Vaultのowner/暗号文/revision/upgradeテスト |
+| [ic-sqlite-vfs-probe.test.mjs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/pocketic-tests/tests/ic-sqlite-vfs-probe.test.mjs) | VFSのcanister実行検証 | 初期ストレージ実証 |
+| [ic_sqlite_vfs_probe/src/lib.rs](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/crates/ic_sqlite_vfs_probe/src/lib.rs) | DbHandle probeとnative実行時の注意 | nativeだけで永続性を保証しないための検証参考 |
 
-元repoのツール/テストは参考であり、Vaultでそのまま実行可能とみなさない。課金/IAP/補充/公開HTTPなどWiki専用のfixtureや設定は取り除く。型生成は[tools/candid](../../kinic-wiki/tools/candid/package.json)を参考に、Vault独自Candidとbindingの一致を検査する。
+元repoのツール/テストは参考であり、Vaultでそのまま実行可能とみなさない。課金/IAP/補充/公開HTTPなどWiki専用のfixtureや設定は取り除く。型生成は[tools/candid](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/tools/candid/package.json)を参考に、Vault独自Candidとbindingの一致を検査する。
 
 ## 4. Vaultの保存方式
 
@@ -65,7 +65,7 @@ vetKeysは公式暗号/management APIを使う。KeyManagerの既定stable領域
 
 ## 6. 文書の古さ・依存の取り違えを避ける
 
-[DEPENDENCY_FORKS.md](../../kinic-wiki/docs/internal/DEPENDENCY_FORKS.md)にはstable-structuresのu16 forkに関する記載が残る。一方、調査したroot Cargo.tomlのpatchはic-agentのみで、Cargo.lockにic-stable-structuresパッケージは見つからなかった。現行コードはVFSが公開するu16のMemoryIdを使う。したがって古い文書のfork設定を機械的に復活させず、固定sourceとlockを優先する。
+[DEPENDENCY_FORKS.md](https://github.com/ICME-Lab/kinic-wiki/blob/4f15ac1135a0266d303ccf830f3ad6ed93f9986d/docs/internal/DEPENDENCY_FORKS.md)にはstable-structuresのu16 forkに関する記載が残る。一方、調査したroot Cargo.tomlのpatchはic-agentのみで、Cargo.lockにic-stable-structuresパッケージは見つからなかった。現行コードはVFSが公開するu16のMemoryIdを使う。したがって古い文書のfork設定を機械的に復活させず、固定sourceとlockを優先する。
 
 同様に一般的なMemoryIdのu8上限をこの固定版に無条件で当てはめない。Vault初期値10はどちらの範囲にも収まるが、将来領域を増やすときは実際のVFS layoutを調べる。
 
