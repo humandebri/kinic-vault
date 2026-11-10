@@ -1,0 +1,6 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Local II integration check</title><main><h1>Local II integration check</h1><button id="signin">Sign in with local II</button><output id="result"></output></main><script type="module">
+import {AuthClient} from '@icp-sdk/auth/client';
+const memory=new Map();
+const client=new AuthClient({identityProvider:import.meta.env.VITE_II_URL,derivationOrigin:location.origin,storage:{get:async key=>memory.get(key)??null,set:async(key,value)=>{memory.set(key,value)},remove:async key=>{memory.delete(key)}},idleOptions:{disableIdle:true}});
+document.querySelector('#signin').onclick=async()=>{try{const identity=await client.signIn();document.querySelector('#result').textContent=identity.getPrincipal().toText()}catch(e){document.querySelector('#result').textContent='Sign-in failed'}};
+</script></html>

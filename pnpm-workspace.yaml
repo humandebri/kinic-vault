@@ -1,0 +1,7 @@
+packages:
+  - packages/*
+  - apps/*
+allowBuilds:
+  "@dfinity/pic": true
+  esbuild: true
+storeDir: .pnpm-store

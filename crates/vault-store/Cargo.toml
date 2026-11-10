@@ -1,0 +1,11 @@
+[package]
+name = "vault-store"
+version = "0.1.0"
+edition = "2024"
+[dependencies]
+vault-types = { path = "../vault-types" }
+kinic-sqlite-compat = { path = "../kinic-sqlite-compat" }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+candid.workspace = true

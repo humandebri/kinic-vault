@@ -1,0 +1,28 @@
+[package]
+name = "vault-canister"
+version = "0.1.0"
+edition = "2024"
+[lib]
+crate-type = ["cdylib", "rlib"]
+[dependencies]
+vault-types = { path = "../vault-types" }
+vault-store = { path = "../vault-store" }
+kinic-sqlite-compat = { path = "../kinic-sqlite-compat" }
+candid.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+ic-cdk = "=0.20.1"
+ic-cdk-management-canister = "=0.1.1"
+ic-vetkeys = "=0.9.0"
+passkey-auth = "=0.1.3"
+base64 = "0.22"
+ic_bls12_381 = { version = "0.10.1", default-features = false, features = ["groups"] }
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+ic-sqlite-vfs = { workspace = true, features = ["sqlite-precompiled"] }
+[dev-dependencies]
+aes-gcm = "0.10"
+hex = "0.4"
+
+[features]
+schema-v3-fixture = []

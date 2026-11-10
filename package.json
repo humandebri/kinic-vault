@@ -1,0 +1,43 @@
+{
+  "name": "kinic-vault",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "test:canister": "pnpm build:canister && node --test pocketic-tests/*.test.mjs",
+    "test:canister:keys": "pnpm test:canister",
+    "build:canister": "node tools/build-canister.mjs",
+    "test:recovery:offline": "node --test apps/recovery/test/*.test.mjs",
+    "dev": "vite apps/web --host localhost --port 5173 --strictPort",
+    "build": "vite build apps/web",
+    "test:e2e": "playwright test",
+    "generate:contracts": "node tools/contracts.mjs",
+    "dev:local": "pnpm build:canister && node tools/local.mjs",
+    "format:check": "prettier --check apps/web/src packages/crypto packages/backup apps/recovery tools tests *.json *.yaml *.ts",
+    "test:ii": "node tools/ii-check.mjs"
+  },
+  "dependencies": {
+    "@icp-sdk/core": "5.0.0",
+    "@icp-sdk/vetkeys": "0.7.0",
+    "@icp-sdk/auth": "8.0.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "dompurify": "3.3.0",
+    "marked": "17.0.1"
+  },
+  "devDependencies": {
+    "@dfinity/pic": "0.21.0",
+    "@types/node": "24.10.0",
+    "typescript": "5.9.3",
+    "vitest": "3.2.4",
+    "vite": "7.2.2",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@playwright/test": "1.61.0",
+    "@mizchi/vlmkit": "0.23.0",
+    "prettier": "3.6.2"
+  }
+}

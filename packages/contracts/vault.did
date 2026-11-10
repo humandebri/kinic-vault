@@ -1,0 +1,166 @@
+type Activate = record {
+  normal : Envelope;
+  vault : blob;
+  registration : opt text;
+  assertion : opt text;
+  operation : blob;
+  recovery : Envelope;
+};
+type BeginRestore = record {
+  count : nat64;
+  root : blob;
+  operation : blob;
+  reserved_bytes : nat64;
+  header : Header;
+};
+type BeginRevision = record {
+  object : blob;
+  vault : blob;
+  chunk_hashes : vec blob;
+  operation : blob;
+  manifest : blob;
+  plain_size : nat64;
+  expected_revision : nat64;
+};
+type BeginUnlock = record {
+  vault : blob;
+  transport : blob;
+  epoch : nat64;
+  target : blob;
+  purpose : Purpose;
+};
+type Challenge = record {
+  expires : nat64;
+  registration : bool;
+  credential_ids : vec blob;
+  bytes : blob;
+};
+type Config = record {
+  minimum_cycles : nat64;
+  owner : principal;
+  origin : text;
+  key_name : text;
+  rp_id : text;
+};
+type CredentialInfo = record { id : blob };
+type Derive = record {
+  vault : blob;
+  transport : blob;
+  epoch : nat64;
+  assertion : opt text;
+};
+type Envelope = record { ciphertext : blob; version : nat8; nonce : blob };
+type Error = variant {
+  Storage;
+  InvalidInput;
+  Busy;
+  InvalidProof;
+  KeyService;
+  NotFound;
+  ExportInProgress;
+  Unauthorized;
+  Expired;
+  QuotaExceeded;
+  Conflict;
+};
+type Export = record {
+  id : blob;
+  expires : nat64;
+  vault : blob;
+  plain_bytes : nat64;
+  state : text;
+  chunk_count : nat64;
+  sequence : nat64;
+  record_count : nat64;
+  header : Header;
+};
+type ExportPage = record { next : opt nat64; entries : vec Revision };
+type Header = record {
+  id : blob;
+  normal : opt Envelope;
+  epoch : nat64;
+  backup_sequence : opt nat64;
+  state : VaultState;
+  key_name : text;
+  recovery : opt Envelope;
+  sequence : nat64;
+  backup_at : opt nat64;
+};
+type KeyReply = record { encrypted_key : blob; public_key : blob };
+type ManageCredential = record {
+  remove : opt blob;
+  vault : blob;
+  registration : opt text;
+  assertion : text;
+};
+type ObjectPage = record { next : opt blob; entries : vec Revision };
+type Purpose = variant { Unlock; Activate; AddCredential; RemoveCredential };
+type Quota = record {
+  "reserved" : nat64;
+  limit : nat64;
+  current : nat64;
+  charged : nat64;
+};
+type Reserve = record { vault : blob; operation : blob };
+type RestoreProgress = record { count : nat64; root : blob; sequence : nat64 };
+type Result = variant { Ok : Header; Err : Error };
+type Result_1 = variant { Ok : Export; Err : Error };
+type Result_10 = variant { Ok : opt Export; Err : Error };
+type Result_11 = variant { Ok : blob; Err : Error };
+type Result_12 = variant { Ok : Quota; Err : Error };
+type Result_13 = variant { Ok : vec CredentialInfo; Err : Error };
+type Result_14 = variant { Ok : ObjectPage; Err : Error };
+type Result_15 = variant { Ok : vec Header; Err : Error };
+type Result_2 = variant { Ok; Err : Error };
+type Result_3 = variant { Ok : Upload; Err : Error };
+type Result_4 = variant { Ok : Challenge; Err : Error };
+type Result_5 = variant { Ok : nat64; Err : Error };
+type Result_6 = variant { Ok : RestoreProgress; Err : Error };
+type Result_7 = variant { Ok : Revision; Err : Error };
+type Result_8 = variant { Ok : KeyReply; Err : Error };
+type Result_9 = variant { Ok : ExportPage; Err : Error };
+type Revision = record {
+  deleted : bool;
+  object : blob;
+  vault : blob;
+  chunk_hashes : vec blob;
+  revision : nat64;
+  manifest : blob;
+  plain_size : nat64;
+  sequence : nat64;
+};
+type Upload = record { id : blob; expires : nat64; revision : nat64 };
+type VaultState = variant { Active; Restoring; Pending };
+service : (Config) -> {
+  abort_export : (blob) -> (Result);
+  activate_vault : (Activate) -> (Result);
+  begin_export : (blob, blob) -> (Result_1);
+  begin_restore : (BeginRestore) -> (Result);
+  begin_restore_revision : (blob, Revision) -> (Result_2);
+  begin_revision : (BeginRevision) -> (Result_3);
+  begin_unlock : (BeginUnlock) -> (Result_4);
+  collect_garbage : () -> (Result_5);
+  commit_restore : (Activate) -> (Result);
+  commit_restore_revision : (blob, nat64) -> (Result_6);
+  commit_revision : (blob) -> (Result_7);
+  delete_object : (blob, blob, nat64, blob) -> (Result_7);
+  derive_vault_key : (Derive) -> (Result_8);
+  export_index : (blob, nat64) -> (Result_9);
+  finish_export : (blob, bool) -> (Result);
+  get_active_export : () -> (Result_10);
+  get_chunk : (blob, blob, nat64, nat32) -> (Result_11) query;
+  get_export_chunk : (blob, blob, nat64, nat32) -> (Result_11) query;
+  get_manifest : (blob, blob, nat64) -> (Result_7);
+  get_quota : (blob) -> (Result_12);
+  get_vault_header : (blob) -> (Result);
+  list_credentials : () -> (Result_13);
+  list_history : (blob, blob, nat64) -> (Result_9);
+  list_objects : (blob, blob) -> (Result_14);
+  list_vaults : () -> (Result_15);
+  manage_unlock_credential : (ManageCredential) -> (Result_2);
+  prepare_unlock_credential : (blob, text) -> (Result_11);
+  purge_object : (blob, blob) -> (Result_2);
+  put_chunk : (blob, nat32, blob) -> (Result_2);
+  put_restore_chunk : (blob, nat32, blob) -> (Result_2);
+  reserve_vault : (Reserve) -> (Result);
+}
